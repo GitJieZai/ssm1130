@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifamiao.mapper.UserInfoMapper">
+	<cache />
+	<update id="updateUserById" parameterType="string">
+	   update userinfo set username=#{username} where id=1
+	</update>
+	
+    <!-- 查找所有的用户 -->
+	<select id="findAll" resultMap="lazyUserOrdersList">
+		select * from userinfo
+	</select>
+	<!-- 用户查找结果的映射 -->
+	<resultMap type="UserInfo" id="lazyUserOrdersList">
+		<id column="id" property="id"/>
+		<result column="userName" property="userName"/>
+		<result column="birthday" property="birthday"/>
+		<result column="gender" property="gender"/>
+		<result column="address" property="address"/>
+		<!-- 懒加载(注意：不可以做联表查找)订单信息，按需加载 -->
+	    <collection property="ordersList" ofType="Orders"
+	     select="com.kaifamiao.mapper.OrdersMapper.findByUserId"
+	      column="id"> 
+	    </collection>
+	</resultMap>
+
+	<select id="findBySearch" parameterType="hashmap" resultType="UserInfo">
+		select * from userinfo 
+		<!-- where标签     能动态生成sql条件 （会自动去掉第一个包含and的查找条件），如果后面的条件都不成立，那么也不会生成where -->
+		<where>
+			<if test="username!=null and username!=''">
+		 	  and username=#{username}
+			</if>
+			<if test="gender!=null and gender!=''">
+		 	  and gender=#{gender}
+			</if>
+			<if test="orderid!=null and orderid!=''">
+			   and id in (select userid from orders where id=#{orderid})
+			</if>
+		</where>
+	 <!-- 条件筛选
+		<where> 
+        <choose> 
+            <when test="username!=null and username!=''"> 
+                 and username=#{username}
+            </when> 
+            <when test="gender!=null and gender!=''"> 
+                 and gender=#{gender}
+            </when> 
+            <when test="orderid!=null and orderid!=''">
+			   and id in (select userid from orders where id=#{orderid})
+			</when>
+            <otherwise> 
+            	1=1
+            </otherwise> 
+        </choose> 
+   		 </where>
+		 -->
+	</select>
+	<!-- foreach -->
+	<select id="findUserById" parameterType="java.util.List" resultType="UserInfo" useCache="true">
+	 	select * from userinfo
+	 	<include refid="useridForeach"></include>
+	</select>
+	
+	<!-- sql片断 -->
+	<sql id="useridForeach">
+		<where>
+	 		<if test="list!=null and list.size()>0">
+	 		   <foreach collection="list" item="id" open="id in (" separator="," close=")">
+	 		   	#{id}
+	 		   </foreach>
+	 		</if>
+	 	</where>
+	</sql>
+	
+	
+	<!-- 多对多的关系 -->
+	<select id="findUserInfoOrdersOrderDetailGoodsList" resultMap="findUserInfoOrdersOrderDetailGoodsListMap">
+		SELECT u.id uid,u.userName,u.birthday,u.gender,u.address,
+    		   o.id oid,o.userid,o.createtime ocreatetime,o.memo omemo,
+			   d.id did,d.orderid,d.goodsid,d.itemsnum,
+			   g.id gid,g.goodsname,g.price,g.pic,g.memo gmemo,g.createtime gcreatetime
+		FROM `userinfo` u
+					JOIN orders o ON u.id = o.userid
+					   JOIN orderdetail d ON o.id = d.orderid
+						    JOIN goods g ON g.id = d.goodsid
+	</select>
+	<!-- 多对多的关系 -->
+	<resultMap type="UserInfo" id="findUserInfoOrdersOrderDetailGoodsListMap">
+		<!-- 用户表 -->
+		<id column="uid" property="id"/>
+		<result column="userName" property="userName"/>
+		<result column="birthday" property="birthday"/>
+		<result column="gender" property="gender"/>
+		<result column="address" property="address"/>
+		<!-- 订单表(用户表：订单表=1:M) -->
+		<collection property="ordersList" ofType="Orders">
+			<id column="oid" property="id"/>
+			<result column="userid" property="userid"/>
+			<result column="ocreatetime" property="createtime"/>
+			<result column="omemo" property="memo"/>
+			<!-- 订单详细(订单表：订单详细=1:M) -->
+			<collection property="orderDetailList" ofType="OrderDetail">
+				<id column="did" property="id"/>
+				<result column="orderid" property="orderid"/>
+				<result column="goodsid" property="goodsid"/>
+				<result column="itemsnum" property="itemsnum"/>
+				<!-- 商品表(订单详细:商品表=1:1) -->
+				<association property="goods" javaType="Goods">
+					<id column="gid" property="id"/>
+					<result column="goodsname" property="goodsname"/>
+					<result column="price" property="price"/>
+					<result column="gmemo" property="memo"/>
+					<result column="pic" property="pic"/>
+					<result column="gcreatetime" property="createtime"/>
+				</association>
+			</collection>
+		</collection>
+	</resultMap>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifamiao.mapper.OrdersMapper">
+	<!-- 根据用户ID查找订单 -->
+	<select id="findByUserId" parameterType="int" resultType="Orders">
+		select * from orders where userid = #{userid}
+	</select>
+	
+	<select id="findById" parameterType="Integer" resultMap="findByIdMap2">
+		SELECT o.id oid,o.memo,o.createtime,o.userid,
+			u.userName,u.birthday,u.gender,u.address 
+				from orders o 
+    			    JOIN userinfo u ON o.userid = u.id
+    			        WHERE o.id = #{id}
+	</select>
+	
+	<!-- 一对一关系：第一种实现方式 -->
+	<resultMap type="Orders" id="findByIdMap">
+		<id column="oid" property="id"/>
+		<result column="memo" property="memo"/>
+		<result column="createtime" property="createtime"/>
+		<result column="userid" property="userid"/>
+		<result column="userName" property="userInfo.userName"/>
+	</resultMap>
+	
+	<!-- 一对一关系：第二种实现方式 -->
+	<resultMap type="Orders" id="findByIdMap2">
+		<id column="oid" property="id"/>
+		<result column="memo" property="memo"/>
+		<result column="createtime" property="createtime"/>
+		<result column="userid" property="userid"/>
+		<!-- 用户信息 -->
+		<association property="userInfo" javaType="UserInfo" >
+			<id column="userid" property="id"/>
+			<result column="userName" property="userName"/>
+			<result column="birthday" property="birthday"/>
+			<result column="gender" property="gender"/>
+			<result column="address" property="address"/>
+		</association>
+	</resultMap>
+	
+	<!--一个订单对应多个订单详细 一对多 -->
+	<select id="findOrdersDetailAll" resultMap="findOrdersDetailAllMap">
+		SELECT o.id oid,o.userid,o.memo,o.createtime,
+			   d.id did,d.goodsid,d.itemsnum
+     	from orders o
+     		JOIN userinfo u ON o.userid = u.id 
+              JOIN orderdetail d ON o.id = d.orderid
+	</select>
+    <!--一个订单对应多个订单详细 一对多 -->
+	<resultMap type="Orders" id="findOrdersDetailAllMap">
+		<!-- 订单表 -->
+		<id column="oid" property="id"/>
+		<result column="userid" property="userid"/>
+		<result column="memo" property="memo"/>
+		<result column="createtime" property="createtime"/>
+		<!-- 订单详细 -->
+		<collection property="orderDetailList" ofType="OrderDetail">
+			<id column="did" property="id"/>
+			<result column="goodsid" property="goodsid"/>
+			<result column="itemsnum" property="itemsnum"/>
+			<result column="oid" property="orderid"/>
+		</collection>
+	</resultMap>
+	
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luoyingjie.mapper.GoodsMapper">
+<!-- 需求：根据id查询用户 -->
+	<!--定义Mapped Statement ID，通过select执行数据库查询
+1.	id：用于标识映射文件中的 sql语句，必须唯一。Mybatis会将sql语句封装到mappedStatement对象中
+2.	parameterType：指定输入参数的类型，这里指定int型
+3.	resultType：指定sql查询结果所映射的POJO类型
+4.	#{}：表示一个占位符号，相当于sql语句中的?，#{id}：其中的id表示接收输入的参数，如果输入参数是简单类型，#{}中的参数名可以任意。
+5.	简单数据类型是不能再简化的数据类型，表示真实的数字、字符和整数，例如char、byte、short、int、long、float、double、boolean、String。复杂数据类型是简单数据类型的组合，例如POJO类型。
+	 -->
+  <select id="selectGoods" parameterType="int" resultType="Goods">
+    select * from goods where id = #{id}
+  </select>
+  
+  <select id="findAll" resultType="Goods">
+    select * from goods
+  </select>
+  
+   <select id="findAllMap" resultType="hashmap">
+    select * from goods
+  </select>
+  
+  <select id="findAllResultMap" resultMap="myresultmap">
+    select id id_,goodsname goodsname_,price price_ from goods
+  </select>
+  
+  <resultMap type="Goods" id="myresultmap">
+  	<id column="id_" property="id"/>
+  	<result column="goodsname_" property="goodsname"/>
+  	<result column="price_" property="price"/>
+  </resultMap>
+  
+   
+  <!-- 模糊查找 -->
+  <select id="findByName" parameterType="String" resultType="goods">
+  	select * from goods where goodsname like "%"#{gname}"%"
+  </select>
+  
+  <select id="getRecount" resultType="Integer">
+  	select Count(*) from goods
+  </select>
+  
+  <insert id="addGoods" parameterType="goods">
+  	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+  		select last_insert_id()
+  	</selectKey>
+  	insert into goods (id,goodsname,price,memo,pic,createtime) values (#{id},#{goodsname},#{price},#{memo},#{pic},#{createtime})
+  </insert>
+  
+  <insert id="addGoodsMap" parameterType="hashmap">
+  	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+  		select last_insert_id()
+  	</selectKey>
+  	insert into goods (id,goodsname,price,memo,pic,createtime) values (#{id},#{goodsname},#{price},#{memo},#{pic},#{createtime})
+  </insert>
+  
+  <update id="updateGoods" parameterType="Goods">
+    update goods set goodsname=#{goodsname},price=#{price},memo=#{memo},pic=#{pic},createtime=#{createtime} where id=#{id}
+  </update>
+  
+  <delete id="deleteGoods" parameterType="int">
+  	delete from goods where id=#{myid}
+  </delete>
+</mapper>
