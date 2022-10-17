@@ -3,8 +3,8 @@ package mapper;
 import java.util.HashMap;
 import java.util.List;
 
-import com.luoyingjie.pojo.Orders;
-import com.luoyingjie.pojo.UserInfo;
+import pojo.Orders;
+import pojo.UserInfo;
 
 public interface UserInfoMapper {
 	public List<UserInfo> findUserInfoOrdersOrderDetailGoodsList();

@@ -8,8 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.luoyingjie.pojo.Goods;
-import com.luoyingjie.services.GoodsService;
+import pojo.Goods;
+import services.GoodsService;
+import pojo.Goods;
 
 @Controller
 @RequestMapping("/goods")

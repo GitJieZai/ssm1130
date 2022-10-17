@@ -2,7 +2,7 @@ package mapper;
 
 import java.util.List;
 
-import com.luoyingjie.pojo.Orders;
+import pojo.Orders;
 
 public interface OrdersMapper {
 	

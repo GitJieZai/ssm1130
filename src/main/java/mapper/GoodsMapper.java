@@ -3,7 +3,7 @@ package mapper;
 import java.util.HashMap;
 import java.util.List;
 
-import com.luoyingjie.pojo.Goods;
+import pojo.Goods;
 
 public interface GoodsMapper {
 	

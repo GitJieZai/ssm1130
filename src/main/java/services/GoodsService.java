@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.luoyingjie.mapper.GoodsMapper;
-import com.luoyingjie.pojo.Goods;
+import mapper.GoodsMapper;
+import pojo.Goods;
 
 
 //Ӧ�õ�ҵ����(����service����)
